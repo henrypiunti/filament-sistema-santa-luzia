@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Customers\Schemas;
 
+use App\Models\Customer;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -11,6 +12,7 @@ class CustomerForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->disabled(fn (?Customer $record): bool => $record?->isAnonymized() ?? false)
             ->components([
                 Section::make('Dados pessoais')
                     ->columns(2)

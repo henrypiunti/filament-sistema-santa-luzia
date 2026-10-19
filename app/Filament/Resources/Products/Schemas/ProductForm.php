@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -30,6 +31,24 @@ class ProductForm
                     ->required()
                     ->prefix('R$')
                     ->minValue(0),
+
+                TextInput::make('stock')
+                    ->label('Estoque atual')
+                    ->integer()
+                    ->required()
+                    ->default(0)
+                    ->minValue(0),
+
+                TextInput::make('minimum_stock')
+                    ->label('Estoque mínimo')
+                    ->helperText('Um alerta é enviado quando o estoque atual chegar a este valor. Deixe 0 para não monitorar.')
+                    ->integer()
+                    ->required()
+                    ->default(0)
+                    ->minValue(0),
+
+                DatePicker::make('expires_at')
+                    ->label('Data de validade'),
 
                 Select::make('categories')
                     ->label('Categorias')

@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ProductResource extends Resource
 {
@@ -20,11 +21,32 @@ class ProductResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
+    protected static string|UnitEnum|null $navigationGroup = 'Catálogo';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $modelLabel = 'produto';
 
     protected static ?string $pluralModelLabel = 'produtos';
+
+    public static function getNavigationBadge(): ?string
+    {
+        $lowStockCount = Product::query()->lowStock()->count();
+
+        return $lowStockCount > 0 ? (string) $lowStockCount : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Produtos com estoque baixo';
+    }
 
     public static function form(Schema $schema): Schema
     {
