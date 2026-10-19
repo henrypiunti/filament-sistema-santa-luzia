@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Orders\Schemas;
 
 use App\Models\Customer;
+use App\Models\OrderProduct;
 use App\Models\Product;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -38,6 +39,7 @@ class OrderForm
                             ->preload()
                             ->required()
                             ->live()
+                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                             ->afterStateUpdated(function (Set $set, ?string $state) {
                                 $set('price', Product::find($state)?->price);
                             })
@@ -47,6 +49,13 @@ class OrderForm
                             ->numeric()
                             ->integer()
                             ->minValue(1)
+                            ->maxValue(fn (Get $get, ?OrderProduct $record): ?int => self::availableStock($get('product_id'), $record))
+                            ->validationMessages(['max' => 'Estoque insuficiente. Disponível: :max.'])
+                            ->helperText(function (Get $get, ?OrderProduct $record): ?string {
+                                $availableStock = self::availableStock($get('product_id'), $record);
+
+                                return $availableStock === null ? null : "Disponível: {$availableStock}";
+                            })
                             ->default(1)
                             ->required()
                             ->live(onBlur: true),
@@ -75,5 +84,21 @@ class OrderForm
                     })
                     ->columnSpanFull(),
             ]);
+    }
+
+    /**
+     * Stock available for the item, counting the quantity this item already reserved when editing.
+     */
+    private static function availableStock(mixed $productId, ?OrderProduct $record): ?int
+    {
+        $product = filled($productId) ? Product::find($productId) : null;
+
+        if ($product === null) {
+            return null;
+        }
+
+        $alreadyReserved = $record !== null && (int) $record->product_id === $product->id ? $record->quantity : 0;
+
+        return $product->stock + $alreadyReserved;
     }
 }

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Observers\OrderProductObserver;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable(['order_id', 'product_id', 'quantity', 'price'])]
+#[ObservedBy(OrderProductObserver::class)]
 class OrderProduct extends Model
 {
     protected $table = 'order_product';
@@ -19,6 +22,7 @@ class OrderProduct extends Model
     protected function casts(): array
     {
         return [
+            'quantity' => 'integer',
             'price' => 'decimal:2',
         ];
     }

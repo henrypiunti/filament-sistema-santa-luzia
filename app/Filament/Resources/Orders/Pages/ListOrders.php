@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\Orders\Pages;
 
+use App\Filament\Exports\OrderExporter;
 use App\Filament\Resources\Orders\OrderResource;
 use Filament\Actions\CreateAction;
+use Filament\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Resources\Pages\ListRecords;
 
 class ListOrders extends ListRecords
@@ -13,6 +16,10 @@ class ListOrders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ExportAction::make()
+                ->label('Exportar')
+                ->exporter(OrderExporter::class)
+                ->formats([ExportFormat::Xlsx]),
             CreateAction::make(),
         ];
     }
