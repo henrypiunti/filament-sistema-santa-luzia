@@ -2,24 +2,36 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+/**
+ * Seeds a realistic demo store. It does not rely on Faker, so it also runs in the production
+ * image (installed without dev dependencies). Model events stay enabled on purpose: the
+ * order items must go through the observer that keeps the stock in sync.
+ */
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $admin = User::query()->firstOrCreate(
+            ['email' => 'admin@santaluzia.test'],
+            ['name' => 'Administrador', 'password' => 'password'],
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $admin->roles()->syncWithoutDetaching(
+            Role::query()->where('name', 'super-admin')->pluck('id'),
+        );
+
+        $this->call([
+            CategorySeeder::class,
+            ProductSeeder::class,
+            CustomerSeeder::class,
+            OrderSeeder::class,
         ]);
     }
 }
